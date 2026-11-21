@@ -1,0 +1,42 @@
+Matplotlib is building the font cache; this may take a moment.
+Part (a): Full-data baseline
+Full-data loss: 2949.788815
+Solve time: 2.127519 seconds
+Rank of D: 113
+
+Part (b): Accuracy after CountSketch
+m | mean ratio | min ratio | max ratio | mean sketched loss
+50 | 3.774424 | 3.013975 | 5.680415 | 1.38423e-23
+100 | 15.185613 | 6.582814 | 27.879803 | 1.02987e-23
+200 | 2.341316 | 1.827743 | 2.710020 | 1274.74
+500 | 1.295373 | 1.264848 | 1.322244 | 2289.02
+1000 | 1.120936 | 1.094846 | 1.131944 | 2624.8
+2000 | 1.062178 | 1.052538 | 1.076418 | 2827.87
+5000 | 1.022877 | 1.018848 | 1.026424 | 2887.24
+Part (b) results saved to: /Users/vaish/Documents/Documents - Vaishnavi’s MacBook Pro/Sem7/DSC_Assignmnet/results
+
+Part (c): Timing comparison
+Full-data solve time: 2.127519 seconds
+m | mean sketch-and-solve seconds | speedup
+50 | 0.419867 | 5.067x
+100 | 0.407707 | 5.218x
+200 | 0.448826 | 4.740x
+500 | 0.448678 | 4.742x
+1000 | 0.444807 | 4.783x
+2000 | 0.429447 | 4.954x
+5000 | 0.440870 | 4.826x
+Part (c) results saved to: /Users/vaish/Documents/Documents - Vaishnavi’s MacBook Pro/Sem7/DSC_Assignmnet/results
+
+Part (d): Residual norm preservation
+m | mean squared-norm ratio | sample standard deviation
+50 | 0.987864 | 0.183561
+500 | 1.002429 | 0.065296
+5000 | 0.998220 | 0.020838
+Part (d) results saved to: /Users/vaish/Documents/Documents - Vaishnavi’s MacBook Pro/Sem7/DSC_Assignmnet/results
+
+Part (e): CountSketch versus Gaussian sketch
+Subset baseline loss: 295.158682
+Method | mean construction seconds | mean loss ratio
+CountSketch | 0.038449 | 3.074398
+Gaussian | 0.170562 | 1.263199
+Part (e) results saved to: /Users/vaish/Documents/Documents - Vaishnavi’s MacBook Pro/Sem7/DSC_Assignmnet/results
