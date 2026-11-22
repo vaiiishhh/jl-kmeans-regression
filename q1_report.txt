@@ -1,0 +1,255 @@
+CSE558 Data Science - Assignment - Question 1: JL for k-means clustering
+Dataset: KDD Cup 1999 (10% version), sklearn.datasets.fetch_kddcup99
+Global random seed = 160705  (numpy Generators + KMeans random_state are derived from it)
+Note: group members' names / discussion partners / URLs used: [fill in before submitting]
+
+==============================================================================
+0. DATA MATRIX D
+==============================================================================
+What was done:
+  (i)   One-hot encoded protocol_type, service, flag (pandas.get_dummies); the other 38
+        features converted to float.
+  (ii)  Dropped every column that has the same value on all rows.
+  (iii) Rescaled every column to [0,1] with  x -> (x - min) / (max - min).
+  D is stored as float32 (memory); every cost / sum is accumulated in float64.
+  Source of D in this run: loaded from cache D.npy
+
+##############################################################################
+#  >>>  ANSWER (data)
+##############################################################################
+#  n = 494021 rows,   d = 116 columns      D is in R^(n x d)
+##############################################################################
+
+==============================================================================
+PART (a)  k-means on the original data D
+==============================================================================
+What was done: sklearn KMeans(n_clusters=15, n_init=5, random_state=160705) fitted on D.
+Formula:  cost(D,B) = sum_i min_{b in B} ||D_i - b||_2^2, computed by assigning every row of
+          D to its nearest centre and adding squared distances (own routine, float64).
+Why: this is the baseline (B, C_D) against which all projected solutions are compared.
+Cross-check: sklearn inertia_ = 53489.441406 (should agree with our cost up to float32 rounding).
+Cluster sizes: [280781, 86925, 30323, 28436, 20474, 8476, 6243, 5990, 5713, 5631, 5355, 4284, 2828, 1290, 1272]
+
+##############################################################################
+#  >>>  ANSWER (a)
+##############################################################################
+#  cost(D, B)        = 53498.074603
+#  wall-clock time  = 26.569 s   (KMeans.fit on D only, k=15, n_init=5)
+##############################################################################
+
+==============================================================================
+PART (b)  k-means on E = D A^T, centres B_hat = mean of ORIGINAL rows per cluster
+==============================================================================
+What was done: for every m in {5,10,15,20,25} and each of 5 repetitions a fresh A (m x d,
+iid N(0,1/m) from numpy) was drawn, E = D A^T formed, KMeans(15, n_init=5) run on E, the
+clusters kept and centres rebuilt in R^d as  b_hat_j = (1/|C_j|) sum_{i in C_j} D_i.
+Formulas: cost(D,B_hat) = sum_i min_j ||D_i - b_hat_j||^2 ; ratio = cost(D,B_hat)/cost(D,B).
+Why: centres from E live in R^m and cannot be compared with rows of D, but the CLUSTERS
+carry over; the mean of a cluster is the best centre for that cluster, so B_hat is the natural
+way to turn a clustering found in low dimension into centres in the original space.
+
+-- All 25 runs ---------------------------------------------------------------
+  m rep      cost(D,B_hat)     ratio
+  5   0         65572.1761   1.22569
+  5   1         57274.5814   1.07059
+  5   2         59788.6706   1.11759
+  5   3         66021.7161   1.23410
+  5   4         61028.1670   1.14075
+ 10   0         56725.3205   1.06032
+ 10   1         65533.8082   1.22498
+ 10   2         64850.2261   1.21220
+ 10   3         58701.7531   1.09727
+ 10   4         55822.7982   1.04345
+ 15   0         57094.3519   1.06722
+ 15   1         53778.1850   1.00524
+ 15   2         55063.2027   1.02926
+ 15   3         52698.0356   0.98505
+ 15   4         58759.6741   1.09835
+ 20   0         52750.8409   0.98603
+ 20   1         54157.6454   1.01233
+ 20   2         53046.9098   0.99157
+ 20   3         57379.5945   1.07255
+ 20   4         53323.3012   0.99673
+ 25   0         58497.3348   1.09345
+ 25   1         56099.4751   1.04863
+ 25   2         63137.8158   1.18019
+ 25   3         54208.2830   1.01328
+ 25   4         51438.4936   0.96150
+
+-- Summary of ratio cost(D,B_hat)/cost(D,B) over 5 runs ----------------------
+  m       mean   smallest    largest
+  5    1.15774    1.07059    1.23410
+ 10    1.12764    1.04345    1.22498
+ 15    1.03702    0.98505    1.09835
+ 20    1.01184    0.98603    1.07255
+ 25    1.05941    0.96150    1.18019
+
+##############################################################################
+#  >>>  ANSWER (b)
+##############################################################################
+#  Table above (cost and ratio for every run; mean/smallest/largest ratio per m).
+#  Mean ratio per m: m=5: 1.1577, m=10: 1.1276, m=15: 1.0370, m=20: 1.0118, m=25: 1.0594
+#  Mean ratio goes from 1.1577 (m=5) to 1.0594 (m=25); min-max width goes from 0.1635 to 0.2187.
+#  Number of runs with ratio < 1: 5 of 25.
+##############################################################################
+
+-- Comment -------------------------------------------------------------------
+* Trend with m: larger m preserves distances better (JL: relative error ~ sqrt(1/m)), so the
+  projected clustering is closer to the clustering found in R^d: the mean ratio is expected
+  to approach 1 and the spread to shrink. Observed: mean 1.1577 -> 1.0594, spread 0.1635 -> 0.2187.
+  (Small m can still give ratios close to 1 here because the 15 clusters are very well
+  separated in KDD: attack types such as smurf/neptune form tight, far-apart groups.)
+* Ratios below 1 (5 runs): (m=15, rep=3): 0.98505, (m=20, rep=0): 0.98603, (m=20, rep=2): 0.99157, (m=20, rep=4): 0.99673, (m=25, rep=4): 0.96150
+  A ratio < 1 does NOT contradict JL. The baseline B is only a local optimum of Lloyd's
+  algorithm (k-means is NP-hard; n_init=5 does not guarantee the global minimum), so
+  cost(D,B) >= OPT. A clustering found on the projected data can land in a different,
+  better local optimum and, after recomputing the exact means in R^d, beat B. JL only
+  promises cost(D,B_hat) <= (1+eps) * OPT, and OPT <= cost(D,B).
+
+[insert q1b_ratio.png]
+
+==============================================================================
+PART (c)  Centres mapped back with the pseudo-inverse: B+ = {A^+ a}
+==============================================================================
+What was done: in the same 25 runs each centre a in R^m found by k-means on E was mapped
+to R^d by A^+ a, A^+ = numpy.linalg.pinv(A) (d x m). cost(D,B+) is evaluated exactly like
+cost(D,B) (nearest-centre assignment over the rows of D).
+Formula: ratio_+ = cost(D,B+)/cost(D,B).
+Why: B+ needs only the m-dim centres, no second pass over the clusters; we test whether
+that cheaper route is as good as recomputing means from the original rows (B_hat).
+
+-- Summary: mean (smallest-largest) of cost(D,.)/cost(D,B) over 5 runs -------
+  m | B_hat mean       min       max |    B+ mean       min       max
+  5 |    1.15774   1.07059   1.23410 |    78.5663   76.2431   80.1848
+ 10 |    1.12764   1.04345   1.22498 |    75.2877   70.9310   79.0404
+ 15 |    1.03702   0.98505   1.09835 |    71.1662   67.0600   73.9026
+ 20 |    1.01184   0.98603   1.07255 |    67.7447   62.5025   71.7687
+ 25 |    1.05941   0.96150   1.18019 |    64.7102   61.1402   69.2732
+
+-- All 25 runs (ratio_hat, ratio_plus) ---------------------------------------
+  m rep  ratio B_hat     ratio B+
+  5   0      1.22569      80.1848
+  5   1      1.07059      79.3286
+  5   2      1.11759      76.2431
+  5   3      1.23410      77.7189
+  5   4      1.14075      79.3559
+ 10   0      1.06032      74.7691
+ 10   1      1.22498      75.8164
+ 10   2      1.21220      75.8816
+ 10   3      1.09727      79.0404
+ 10   4      1.04345      70.9310
+ 15   0      1.06722      73.2748
+ 15   1      1.00524      67.0600
+ 15   2      1.02926      69.9376
+ 15   3      0.98505      71.6562
+ 15   4      1.09835      73.9026
+ 20   0      0.98603      70.3694
+ 20   1      1.01233      62.5025
+ 20   2      0.99157      68.2664
+ 20   3      1.07255      65.8167
+ 20   4      0.99673      71.7687
+ 25   0      1.09345      63.3502
+ 25   1      1.04863      62.4755
+ 25   2      1.18019      69.2732
+ 25   3      1.01328      61.1402
+ 25   4      0.96150      67.3120
+
+##############################################################################
+#  >>>  ANSWER (c)
+##############################################################################
+#  Ratio cost(D,B+)/cost(D,B) (mean over 5 runs) next to the (b) ratio:
+#     m= 5:  B_hat = 1.1577    B+ = 78.5663
+#     m=10:  B_hat = 1.1276    B+ = 75.2877
+#     m=15:  B_hat = 1.0370    B+ = 71.1662
+#     m=20:  B_hat = 1.0118    B+ = 67.7447
+#     m=25:  B_hat = 1.0594    B+ = 64.7102
+#  I would use: B_hat  (lower mean ratio over all 25 runs: B_hat 1.0787 vs B+ 71.4950).
+##############################################################################
+
+-- Comment / reasoning -------------------------------------------------------
+* B_hat consists of the actual cluster means in R^d, i.e. the optimal centres for the partition
+  found, so its cost is the best any centre set can do for that partition.
+* B+ = A^+ a lies in the m-dimensional row space of A and has no component along the other
+  d-m directions in which the data D_i do vary; every row pays for that missing part, and
+  A^+ A is only a projection, so B+ is not an approximation of the cluster means in R^d.
+* B_hat costs one extra pass over D (O(nd)); computing pinv(A) costs O(d m^2). So B_hat is
+  both better and cheap. Use B_hat.
+
+[insert q1c_compare.png]
+
+==============================================================================
+PART (d)  Running time: E plus k-means on E versus k-means on D
+==============================================================================
+What was done: in every run of (b) the wall-clock time of 'draw A, compute E = D A^T, run
+KMeans(15,n_init=5) on E' was recorded (perf_counter) and averaged over the 5 runs per m.
+The time of (a) is drawn as a horizontal line. (Time to form B_hat and to evaluate costs is
+NOT included, since the assignment asks for E plus k-means only.)
+Why: the point of JL here is speed - k-means costs O(n k d) per Lloyd iteration, and
+reducing d to m cuts this to O(n k m), while forming E costs O(n d m).
+
+-- Average time per m --------------------------------------------------------
+  m  mean time (s)  speed-up vs (a)
+  5          2.426            10.95x
+ 10          2.254            11.79x
+ 15          2.538            10.47x
+ 20          2.794             9.51x
+ 25          3.219             8.25x
+
+##############################################################################
+#  >>>  ANSWER (d)
+##############################################################################
+#  Time of k-means on D (from (a)): 26.569 s
+#     m= 5: mean time(E + k-means) = 2.426 s  (10.95x vs (a))
+#     m=10: mean time(E + k-means) = 2.254 s  (11.79x vs (a))
+#     m=15: mean time(E + k-means) = 2.538 s  (10.47x vs (a))
+#     m=20: mean time(E + k-means) = 2.794 s  (9.51x vs (a))
+#     m=25: mean time(E + k-means) = 3.219 s  (8.25x vs (a))
+##############################################################################
+Comment: times grow with m (more dimensions to process per distance) but stay below the time on the full D. Number of Lloyd iterations also varies between runs, which adds noise.
+
+[insert q1d_time.png]
+
+==============================================================================
+PART (e)  Distortion of single pair distances vs distortion of the k-means cost
+==============================================================================
+What was done: 10000 random pairs (i,l) with D_i != D_l were drawn once (same pairs for every m).
+(i)  For ONE draw of A per m: r_pair = ||E_i - E_l||^2 / ||D_i - D_l||^2 for all pairs.
+(ii) For 20 independent draws of A per m: r_cost = cost_E(C_D) / cost_D(C_D), where C_D is the
+     clustering from (a) and cost_X(C) = sum_j sum_{i in C_j} ||X_i - mu_j(X)||^2 with mu_j the
+     cluster mean in X (computed as sum||x||^2 - ||sum x||^2/n_j, in float64).
+     cost_D(C_D) = 53498.0350
+Why: JL says E||A x||^2 = ||x||^2, with ||A x||^2/||x||^2 ~ chi^2_m / m for a FIXED x, so
+a single pair has relative std sqrt(2/m). The k-means cost for a fixed partition is a sum of
+many squared distances (it equals sum_j 1/(2 n_j) sum_{i,l in C_j} ||X_i - X_l||^2), so errors of
+different pairs partly cancel and its ratio should be much more concentrated.
+
+-- Summary statistics --------------------------------------------------------
+  m | pairs: mean      std      IQR  sqrt(2/m) | cost: mean      std      IQR
+  5 |      0.8251   0.3428   0.5836     0.6325 |     0.9913   0.1724   0.1743
+ 10 |      0.9638   0.3191   0.2942     0.4472 |     0.9899   0.0944   0.1891
+ 15 |      1.2891   0.3986   0.7404     0.3651 |     1.0023   0.1053   0.1470
+ 20 |      0.9847   0.2634   0.3554     0.3162 |     1.0072   0.0607   0.0951
+ 25 |      0.8194   0.1938   0.2026     0.2828 |     0.9846   0.0688   0.0600
+
+##############################################################################
+#  >>>  ANSWER (e)
+##############################################################################
+#  Smaller spread: the cost ratio r_cost (ii)  (std smaller than the pairwise ratio's std for 5 of 5 values of m).
+#  Change with m: std of pair ratio 0.3428 (m=5) -> 0.1938 (m=25), close to sqrt(2/m) = 0.6325 -> 0.2828.
+#                  std of cost ratio 0.1724 (m=5) -> 0.0688 (m=25).
+#  Both are centred near 1 (JL is unbiased) and both shrink as m grows.
+##############################################################################
+
+-- Comment -------------------------------------------------------------------
+* Pairwise ratios: each pair is distorted like chi^2_m/m, so the box is wide (std ~ sqrt(2/m))
+  and has a long upper tail for small m; it falls like 1/sqrt(m).
+* Cost ratio: an average over very many pairs inside clusters, so over-/under-stretched
+  pairs cancel; boxes are much narrower, and still narrow further as m grows. This is why
+  JL can preserve the k-means cost with a small m even though single distances are noisy.
+
+[insert q1e_boxplot.png]
+
+==============================================================================
+Files produced: q1_graphs/q1b_ratio.png, q1c_compare.png, q1d_time.png, q1e_boxplot.png
+Reproducibility: all draws use numpy Generators seeded from SEED=160705; KMeans random_state is fixed.
+(Wall-clock times naturally vary a little between machines/runs.)
