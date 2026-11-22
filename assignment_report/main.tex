@@ -16,8 +16,10 @@
 \vspace{4pt}
 {\large Random projections on KDD Cup 1999}\par
 \vspace{8pt}
-Names: \underline{\hspace{43mm}}\quad\underline{\hspace{43mm}}\\[6pt]
-Roll numbers: \underline{\hspace{33mm}}\quad\underline{\hspace{33mm}}
+\begin{tabular}{ll}
+Anouska Sahoo & Roll No.\ 2023096 \\[4pt]
+Vaishnavi Srivastava & Roll No.\ 2023574
+\end{tabular}
 \end{center}
 
 \section*{Data preparation}
@@ -92,61 +94,71 @@ $m$ & Mean full loss & Mean $R$ & Min $R$ & Max $R$ & Mean $L_S$ \\
 \captionof{table}{Accuracy over five independent CountSketch trials per size.}
 \end{center}
 \begin{center}
-\includegraphics[width=0.78\linewidth]{images/question2_b_ratios.png}
+\includegraphics[width=0.70\linewidth]{images/question2_b_ratios.png}
 \captionof{figure}{Mean loss ratio on log--log axes, with minimum-to-maximum
 error bars. The vertical line marks $\operatorname{rank}(D)=113$.}
 \end{center}
-\textbf{Discussion.}
-For $m=50$ and $100$, both below the numerical rank, the sketched loss is
-approximately zero, but the full-data loss is much larger than the optimum.
-An underdetermined sketch may interpolate its target without fitting all
-original rows well.
+\textbf{Observed results.}
+Below rank $113$, $m=50$ and $100$ give effectively zero sketched loss
+($\approx10^{-23}$), but mean full-data loss ratios of $3.7744$ and $15.1856$.
+The ratio therefore worsens from $m=50$ to $100$.
+Above the rank, the mean ratio decreases from $2.3413$ at $m=200$ to
+$1.0229$ at $m=5000$: only $2.29\%$ above the optimum. Meanwhile, mean
+sketched loss rises from $1274.74$ to $2887.24$, approaching the baseline
+$2949.79$. Error bars narrow: ratios range from $6.5828$--$27.8798$ at
+$m=100$, versus $1.0188$--$1.0264$ at $m=5000$.
 
-The mean ratio rises from $3.7744$ to $15.1856$ near the rank boundary, so the
-observed relationship is not monotonic at small $m$. Near-rank sketches can
-be unstable; the large range at $m=100$ also shows substantial trial variability.
-Above the rank, the mean ratio falls from $2.3413$ at $m=200$ to $1.0229$ at
-$m=5000$. The sketched loss becomes nonzero and approaches the baseline loss
-as $m$ increases. Since $b$ minimises the full-data loss, $R\geq1$ in exact
-arithmetic; every measured ratio satisfies this. Individual trials are in
-Appendix A.
+\textbf{Interpretation.}
+Below the rank, fewer independent equations can allow the compressed targets
+to be fitted exactly. Signed residuals can cancel within buckets, so zero
+sketched loss does not imply small original-row errors. Above the rank, extra
+equations restrict exact fitting; here, sketched loss becomes positive while
+full-data accuracy improves. Larger sketches generally preserve the
+least-squares problem better, but rank alone does not guarantee accuracy:
+the mean ratio at $m=200$ is still $2.34$. All measured ratios satisfy
+$R\geq1$, since the full-data solution minimises the original loss.
 
 \clearpage
 \subsection*{(c) Timing comparison}
-The same 35 trials as in (b) were timed from before drawing the sketch until
-after the sketched least-squares solve. The timing includes bucket/sign
-generation, forming $SD$ and $Sy$, and computing $\widetilde a$.
-Loss evaluation, output, and plotting are excluded. Speedup is the full-data
-solve time divided by the mean sketch-and-solve time.
+For each $m$, the reported time covers the complete sequence:
+\textbf{draw $S$, form $SD$ and $Sy$, then compute $\widetilde a$}.
+For CountSketch, drawing $S$ means generating its buckets and signs;
+the dense matrix is not stored. A single timer surrounds all three steps.
+For the same five runs used in (b), the average is
+$\overline T_m=\frac{1}{5}\sum_{r=1}^{5}T_m^{(r)}$.
+Loss evaluation, output, and plotting are excluded. The comparison time from
+(a) is $T_b=2.127519$ seconds, covering only the computation of $b$.
 \begin{center}
-\begin{tabular}{rrr}
+\begin{tabular}{rrrr}
 \toprule
-$m$ & Mean time (seconds) & Speedup \\
+$m$ & \shortstack{Mean total time for\\$S,SD,Sy,\widetilde a$ (s)}
+& \shortstack{Time for $b$\\from (a) (s)}
+& \shortstack{Speedup\\$T_b/\overline T_m$} \\
 \midrule
-50 & 0.419867 & 5.067 \\
-100 & 0.407707 & 5.218 \\
-200 & 0.448826 & 4.740 \\
-500 & 0.448678 & 4.742 \\
-1000 & 0.444807 & 4.783 \\
-2000 & 0.429447 & 4.954 \\
-5000 & 0.440870 & 4.826 \\
+50 & 0.419867 & 2.127519 & 5.067 \\
+100 & 0.407707 & 2.127519 & 5.218 \\
+200 & 0.448826 & 2.127519 & 4.740 \\
+500 & 0.448678 & 2.127519 & 4.742 \\
+1000 & 0.444807 & 2.127519 & 4.783 \\
+2000 & 0.429447 & 2.127519 & 4.954 \\
+5000 & 0.440870 & 2.127519 & 4.826 \\
 \bottomrule
 \end{tabular}
-\captionof{table}{Five-trial average timings; full-data baseline: 2.127519 seconds.}
+\captionof{table}{Average combined time for drawing $S$, forming $SD,Sy$,
+and solving for $\widetilde a$, compared with the time for $b$.}
 \end{center}
 \begin{center}
-\includegraphics[width=0.90\linewidth]{images/question2_c_times.png}
-\captionof{figure}{Mean sketch-and-solve times compared with the full-data solve.}
+\includegraphics[width=0.75\linewidth]{images/question2_c_times.png}
+\captionof{figure}{The same combined times from Table 2, averaged over five
+runs per $m$, with the time for computing $b$ as the horizontal line.}
 \end{center}
 \textbf{Discussion.}
-All sketch sizes are faster than the full-data solve in this run. Their average
-times range from $0.4077$ to $0.4488$ seconds, corresponding to approximately
-$4.74$--$5.22$ times speedup. There is no clear increasing trend over these
-sizes. CountSketch processes the original rows for every $m$, so a substantial
-part of its work is shared across sizes; this is consistent with the similar
-observed times, although the timing does not isolate the individual operations.
-At $m=5000$, the mean loss ratio is only $1.0229$ while the speedup is $4.83$.
-These wall-clock measurements describe this execution and can vary between runs.
+For every tested $m$, the complete sketched computation is faster than
+computing $b$ on the full data. Mean combined times are $0.407707$--$0.448826$
+seconds, compared with $2.127519$ seconds for $b$: a $4.74$--$5.22$ times
+speedup. For example, at $m=5000$ the three steps together take $0.440870$
+seconds on average, giving a $4.83$ times speedup over the full solve.
+These are combined timings; separate times for the three stages were not recorded.
 
 \clearpage
 \subsection*{(d) Residual norm preservation}
@@ -186,6 +198,8 @@ the sketched squared norm gives
  \|Sv\|_2^2=\sum_i v_i^2+
  2\sum_{i<j}\mathbf 1_{\{h(i)=h(j)\}}\sigma(i)\sigma(j)v_iv_j.
 \]
+The indicator $\mathbf 1_{\{h(i)=h(j)\}}$ equals $1$ for a bucket collision
+and $0$ otherwise.
 The cross terms have expectation zero, so $\mathbb E[Q]=1$. With independent
 uniform buckets and signs,
 \[
@@ -249,6 +263,10 @@ comparison. Gaussian sketches have the smaller average loss ratio
 ($1.2632$ versus $3.0744$). Four CountSketch trials have ratios between
 $1.3183$ and $1.3516$, but trial 4 has ratio $10.0506$ and raises the mean
 substantially. This trial is retained in all reported averages.
+
+Important rows may collide in the same bucket and partially cancel, causing
+the sketch to lose useful information. Such an unlucky sketch can fit the
+compressed data well but produce a much larger error on the original data.
 
 I would use CountSketch on the full dataset for its construction speed and
 memory requirements, while checking the resulting loss and considering a
@@ -318,7 +336,4 @@ CSV files in \sourcefile{results/} retain all individual measurements for
 The saved baseline coefficients, subset row indices, summaries, three plots,
 and \sourcefile{question2_run.log} accompany the results.
 
-\textit{Task source: CSE558 Assignment, data specification on page 1 and
-Question 2 on page 3. All numerical tables and figures here are from the
-saved local execution; figures summarise the same trials as the tables.}
 \end{document}
