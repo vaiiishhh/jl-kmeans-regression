@@ -14,7 +14,7 @@ This project studies random projection using the Johnson–Lindenstrauss (JL) le
 ## Project structure
 
 ```text
-DSC_Assignmnet/
+jl-kmeans-regression/
 ├── data/
 │   ├── D.npy                       # Shared data matrix; generated locally, ignored by Git
 │   └── feature_names.npy           # Feature names saved by build_data_matrix.py
@@ -249,3 +249,22 @@ CountSketch construction is about 4.44 times faster. Gaussian sketches give bett
 For the full dataset, we choose **CountSketch for speed and memory**, while checking the resulting loss and increasing the sketch size if needed. A dense Gaussian sketch with `m=500` would require about 1.98 GB in float64 for the sketch matrix alone. Gaussian is the better accuracy choice in these fixed-size subset experiments.
 
 Individual trials and summaries for Q2 are saved in `question2_results/`.
+
+
+---
+
+### We hope you enjoy exploring this project as much as we enjoyed creating it !
+
+```
+⠀⣀⢤⠲⠖⠒⠲⠖⠒⠲⠖⠒⠲⠖⠒⠘⠀⠀⠀⠀
+⣆⠈⣤⠤⠤⠤⠤⠤⠤⠤⠤⠤⣤⠠⠦⣴⣀⠀⠀⠀
+⣸⠀⣽⠀⠀⠀⣳⣖⠀⠀⠀⠀⣻⠀⠀⠀⠋⡾⣰⠀
+⠃⡴⢃⣰⠀⠀⠀⠀⠀⠀⠀⠀⣯⠀⠀⠀⣀⠖⠏⣰
+⠀⠀⠁⠉⠚⠔⠤⣤⡤⢤⡤⢤⡽⢀⣄⣳⠈⠀⠀⡇
+⠀⠀⠀⠀⠀⠀⢢⡌⠱⡎⠀⠀⠀⠛⠎⢠⡀⣀⣀⢭
+⠀⠀⠀⠀⠀⠀⠸⠇⠀⠇⠀⠀⠀⠀⠀⣇⠀⠀⠀⣽
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠐⡠⣦⢻
+⠀⠀⠀⠀⠀⠀⠀⡶⠴⣤⢀⠀⠀⣄⠢⠙⣎⠳⠈⠀
+⠀⠀⠀⠀⠀⠀⠀⣧⣋⣀⣁⣹⣉⠤⠶⠓⠈⠀⠀⠀⠀⠀
+```
+
