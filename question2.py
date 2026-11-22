@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print(f"Solve time: {baseline_time:.6f} seconds")
     print(f"Rank of D: {rank_D}")
 
-    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir = Path(__file__).resolve().parent / "question2_results"
     results_dir.mkdir(parents=True, exist_ok=True)
     np.save(results_dir / "question2_a_coefficients.npy", b)
     with (results_dir / "question2_a_summary.csv").open("w", newline="") as file:
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         m_values, mean_ratios, min_ratios, max_ratios, mean_sketched_losses
     ))
 
-    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir = Path(__file__).resolve().parent / "question2_results"
     results_dir.mkdir(parents=True, exist_ok=True)
     np.savetxt(
         results_dir / "question2_b_runs.csv",
