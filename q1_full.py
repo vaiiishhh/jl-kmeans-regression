@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""
-CSE558 Assignment, Question 1: JL for k-means clustering (KDD Cup 1999, 10%).
-
-Run:   python q1_full.py
-Needs: numpy, pandas, scikit-learn, matplotlib
-Makes: data/D.npy (+ data/D_meta.json)   if D is not already there
-       q1_graphs/*.png
-       q1_report.txt                     (answers for parts a-e, with [insert x.png] markers)
-
-All random numbers come from numpy Generators seeded from SEED, so every
-number in the report can be reproduced (KMeans also gets a fixed random_state).
-"""
 import json
 import time
 from pathlib import Path
@@ -25,7 +13,7 @@ from sklearn.cluster import KMeans
 # ----------------------------------------------------------------------------
 # Settings
 # ----------------------------------------------------------------------------
-SEED = 558
+SEED = 160705
 K = 15
 N_INIT = 5
 M_LIST = [5, 10, 15, 20, 25]
@@ -43,9 +31,9 @@ DATA_DIR.mkdir(exist_ok=True)
 GRAPH_DIR.mkdir(exist_ok=True)
 
 
-# ----------------------------------------------------------------------------
+# ----------------------------------------------------
 # Data matrix D
-# ----------------------------------------------------------------------------
+
 def build_D():
     from sklearn.datasets import fetch_kddcup99
     kdd = fetch_kddcup99(subset=None, as_frame=True)
@@ -53,12 +41,12 @@ def build_D():
     cat_cols = ["protocol_type", "service", "flag"]
     for c in cat_cols:  # bytes -> str
         X[c] = X[c].map(lambda v: v.decode() if isinstance(v, bytes) else str(v))
-    onehot = pd.get_dummies(X[cat_cols], dtype=float)               # (i) one-hot
+    onehot = pd.get_dummies(X[cat_cols], dtype=float)               # (i)one-hot
     num = X.drop(columns=cat_cols).astype(float)                    # (i) 38 numeric -> float
     n_num = num.shape[1]
     full = pd.concat([num, onehot], axis=1)
     d_before = full.shape[1]
-    keep = full.columns[full.nunique() > 1]                         # (ii) drop constant columns
+    keep = full.columns[full.nunique() > 1]                         # (ii) drop constants
     dropped = [str(c) for c in full.columns if c not in set(keep)]
     full = full[keep].astype(np.float64)
     mn, mx = full.min(), full.max()
@@ -135,8 +123,8 @@ def fit_kmeans(X, seed):
 
 
 # ----------------------------------------------------------------------------
-# Report helpers
-# ----------------------------------------------------------------------------
+# Report creation
+
 R = []
 W = 78
 
@@ -171,7 +159,6 @@ def para(s):
     line(s)
 
 
-# ----------------------------------------------------------------------------
 # Report: header + data
 # ----------------------------------------------------------------------------
 line("CSE558 Data Science - Assignment - Question 1: JL for k-means clustering")

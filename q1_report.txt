@@ -1,6 +1,6 @@
 CSE558 Data Science - Assignment - Question 1: JL for k-means clustering
 Dataset: KDD Cup 1999 (10% version), sklearn.datasets.fetch_kddcup99
-Global random seed = 558  (numpy Generators + KMeans random_state are derived from it)
+Global random seed = 160705  (numpy Generators + KMeans random_state are derived from it)
 Note: group members' names / discussion partners / URLs used: [fill in before submitting]
 
 ==============================================================================
@@ -12,8 +12,7 @@ What was done:
   (ii)  Dropped every column that has the same value on all rows.
   (iii) Rescaled every column to [0,1] with  x -> (x - min) / (max - min).
   D is stored as float32 (memory); every cost / sum is accumulated in float64.
-  Columns after one-hot: 118 (38 numeric + 80 one-hot); constant columns dropped: 2 ['num_outbound_cmds', 'is_host_login']
-  Source of D in this run: built from fetch_kddcup99 and saved to D.npy
+  Source of D in this run: loaded from cache D.npy
 
 ##############################################################################
 #  >>>  ANSWER (data)
@@ -24,18 +23,18 @@ What was done:
 ==============================================================================
 PART (a)  k-means on the original data D
 ==============================================================================
-What was done: sklearn KMeans(n_clusters=15, n_init=5, random_state=558) fitted on D.
+What was done: sklearn KMeans(n_clusters=15, n_init=5, random_state=160705) fitted on D.
 Formula:  cost(D,B) = sum_i min_{b in B} ||D_i - b||_2^2, computed by assigning every row of
           D to its nearest centre and adding squared distances (own routine, float64).
 Why: this is the baseline (B, C_D) against which all projected solutions are compared.
-Cross-check: sklearn inertia_ = 53610.160156 (should agree with our cost up to float32 rounding).
-Cluster sizes: [280781, 86927, 30322, 28436, 20826, 8476, 7111, 6243, 5633, 5408, 4590, 4291, 2828, 1293, 856]
+Cross-check: sklearn inertia_ = 53489.441406 (should agree with our cost up to float32 rounding).
+Cluster sizes: [280781, 86925, 30323, 28436, 20474, 8476, 6243, 5990, 5713, 5631, 5355, 4284, 2828, 1290, 1272]
 
 ##############################################################################
 #  >>>  ANSWER (a)
 ##############################################################################
-#  cost(D, B)        = 53618.815667
-#  wall-clock time  = 19.715 s   (KMeans.fit on D only, k=15, n_init=5)
+#  cost(D, B)        = 53498.074603
+#  wall-clock time  = 26.569 s   (KMeans.fit on D only, k=15, n_init=5)
 ##############################################################################
 
 ==============================================================================
@@ -51,56 +50,56 @@ way to turn a clustering found in low dimension into centres in the original spa
 
 -- All 25 runs ---------------------------------------------------------------
   m rep      cost(D,B_hat)     ratio
-  5   0         82640.3310   1.54126
-  5   1         63341.1948   1.18132
-  5   2         72018.6148   1.34316
-  5   3         62453.0507   1.16476
-  5   4         59925.7884   1.11763
- 10   0         65751.8061   1.22628
- 10   1         55735.7249   1.03948
- 10   2         58053.6871   1.08271
- 10   3         52322.3645   0.97582
- 10   4         56520.9803   1.05413
- 15   0         57256.1697   1.06784
- 15   1         55125.1620   1.02809
- 15   2         53358.6793   0.99515
- 15   3         52628.1286   0.98152
- 15   4         53792.6112   1.00324
- 20   0         52429.6893   0.97782
- 20   1         52732.6809   0.98347
- 20   2         58518.1582   1.09137
- 20   3         53657.8248   1.00073
- 20   4         54366.1366   1.01394
- 25   0         54814.5217   1.02230
- 25   1         53028.1186   0.98898
- 25   2         52149.7939   0.97260
- 25   3         55120.0213   1.02800
- 25   4         54661.3852   1.01944
+  5   0         65572.1761   1.22569
+  5   1         57274.5814   1.07059
+  5   2         59788.6706   1.11759
+  5   3         66021.7161   1.23410
+  5   4         61028.1670   1.14075
+ 10   0         56725.3205   1.06032
+ 10   1         65533.8082   1.22498
+ 10   2         64850.2261   1.21220
+ 10   3         58701.7531   1.09727
+ 10   4         55822.7982   1.04345
+ 15   0         57094.3519   1.06722
+ 15   1         53778.1850   1.00524
+ 15   2         55063.2027   1.02926
+ 15   3         52698.0356   0.98505
+ 15   4         58759.6741   1.09835
+ 20   0         52750.8409   0.98603
+ 20   1         54157.6454   1.01233
+ 20   2         53046.9098   0.99157
+ 20   3         57379.5945   1.07255
+ 20   4         53323.3012   0.99673
+ 25   0         58497.3348   1.09345
+ 25   1         56099.4751   1.04863
+ 25   2         63137.8158   1.18019
+ 25   3         54208.2830   1.01328
+ 25   4         51438.4936   0.96150
 
 -- Summary of ratio cost(D,B_hat)/cost(D,B) over 5 runs ----------------------
   m       mean   smallest    largest
-  5    1.26963    1.11763    1.54126
- 10    1.07568    0.97582    1.22628
- 15    1.01517    0.98152    1.06784
- 20    1.01347    0.97782    1.09137
- 25    1.00627    0.97260    1.02800
+  5    1.15774    1.07059    1.23410
+ 10    1.12764    1.04345    1.22498
+ 15    1.03702    0.98505    1.09835
+ 20    1.01184    0.98603    1.07255
+ 25    1.05941    0.96150    1.18019
 
 ##############################################################################
 #  >>>  ANSWER (b)
 ##############################################################################
 #  Table above (cost and ratio for every run; mean/smallest/largest ratio per m).
-#  Mean ratio per m: m=5: 1.2696, m=10: 1.0757, m=15: 1.0152, m=20: 1.0135, m=25: 1.0063
-#  Mean ratio goes from 1.2696 (m=5) to 1.0063 (m=25); min-max width goes from 0.4236 to 0.0554.
-#  Number of runs with ratio < 1: 7 of 25.
+#  Mean ratio per m: m=5: 1.1577, m=10: 1.1276, m=15: 1.0370, m=20: 1.0118, m=25: 1.0594
+#  Mean ratio goes from 1.1577 (m=5) to 1.0594 (m=25); min-max width goes from 0.1635 to 0.2187.
+#  Number of runs with ratio < 1: 5 of 25.
 ##############################################################################
 
 -- Comment -------------------------------------------------------------------
 * Trend with m: larger m preserves distances better (JL: relative error ~ sqrt(1/m)), so the
   projected clustering is closer to the clustering found in R^d: the mean ratio is expected
-  to approach 1 and the spread to shrink. Observed: mean 1.2696 -> 1.0063, spread 0.4236 -> 0.0554.
+  to approach 1 and the spread to shrink. Observed: mean 1.1577 -> 1.0594, spread 0.1635 -> 0.2187.
   (Small m can still give ratios close to 1 here because the 15 clusters are very well
   separated in KDD: attack types such as smurf/neptune form tight, far-apart groups.)
-* Ratios below 1 (7 runs): (m=10, rep=3): 0.97582, (m=15, rep=2): 0.99515, (m=15, rep=3): 0.98152, (m=20, rep=0): 0.97782, (m=20, rep=1): 0.98347, (m=25, rep=1): 0.98898, (m=25, rep=2): 0.97260
+* Ratios below 1 (5 runs): (m=15, rep=3): 0.98505, (m=20, rep=0): 0.98603, (m=20, rep=2): 0.99157, (m=20, rep=4): 0.99673, (m=25, rep=4): 0.96150
   A ratio < 1 does NOT contradict JL. The baseline B is only a local optimum of Lloyd's
   algorithm (k-means is NP-hard; n_init=5 does not guarantee the global minimum), so
   cost(D,B) >= OPT. A clustering found on the projected data can land in a different,
@@ -121,50 +120,50 @@ that cheaper route is as good as recomputing means from the original rows (B_hat
 
 -- Summary: mean (smallest-largest) of cost(D,.)/cost(D,B) over 5 runs -------
   m | B_hat mean       min       max |    B+ mean       min       max
-  5 |    1.26963   1.11763   1.54126 |    79.6510   75.1706   81.3920
- 10 |    1.07568   0.97582   1.22628 |    75.8823   74.9403   77.0805
- 15 |    1.01517   0.98152   1.06784 |    71.0224   68.3534   72.8453
- 20 |    1.01347   0.97782   1.09137 |    68.6019   64.9224   71.4570
- 25 |    1.00627   0.97260   1.02800 |    62.9219   59.6940   66.3945
+  5 |    1.15774   1.07059   1.23410 |    78.5663   76.2431   80.1848
+ 10 |    1.12764   1.04345   1.22498 |    75.2877   70.9310   79.0404
+ 15 |    1.03702   0.98505   1.09835 |    71.1662   67.0600   73.9026
+ 20 |    1.01184   0.98603   1.07255 |    67.7447   62.5025   71.7687
+ 25 |    1.05941   0.96150   1.18019 |    64.7102   61.1402   69.2732
 
 -- All 25 runs (ratio_hat, ratio_plus) ---------------------------------------
   m rep  ratio B_hat     ratio B+
-  5   0      1.54126      75.1706
-  5   1      1.18132      80.0815
-  5   2      1.34316      80.5813
-  5   3      1.16476      81.0294
-  5   4      1.11763      81.3920
- 10   0      1.22628      77.0805
- 10   1      1.03948      75.0364
- 10   2      1.08271      75.3712
- 10   3      0.97582      76.9829
- 10   4      1.05413      74.9403
- 15   0      1.06784      72.8453
- 15   1      1.02809      72.0427
- 15   2      0.99515      72.3139
- 15   3      0.98152      68.3534
- 15   4      1.00324      69.5565
- 20   0      0.97782      64.9224
- 20   1      0.98347      66.7954
- 20   2      1.09137      70.5278
- 20   3      1.00073      71.4570
- 20   4      1.01394      69.3068
- 25   0      1.02230      59.6940
- 25   1      0.98898      62.6546
- 25   2      0.97260      63.9430
- 25   3      1.02800      66.3945
- 25   4      1.01944      61.9234
+  5   0      1.22569      80.1848
+  5   1      1.07059      79.3286
+  5   2      1.11759      76.2431
+  5   3      1.23410      77.7189
+  5   4      1.14075      79.3559
+ 10   0      1.06032      74.7691
+ 10   1      1.22498      75.8164
+ 10   2      1.21220      75.8816
+ 10   3      1.09727      79.0404
+ 10   4      1.04345      70.9310
+ 15   0      1.06722      73.2748
+ 15   1      1.00524      67.0600
+ 15   2      1.02926      69.9376
+ 15   3      0.98505      71.6562
+ 15   4      1.09835      73.9026
+ 20   0      0.98603      70.3694
+ 20   1      1.01233      62.5025
+ 20   2      0.99157      68.2664
+ 20   3      1.07255      65.8167
+ 20   4      0.99673      71.7687
+ 25   0      1.09345      63.3502
+ 25   1      1.04863      62.4755
+ 25   2      1.18019      69.2732
+ 25   3      1.01328      61.1402
+ 25   4      0.96150      67.3120
 
 ##############################################################################
 #  >>>  ANSWER (c)
 ##############################################################################
 #  Ratio cost(D,B+)/cost(D,B) (mean over 5 runs) next to the (b) ratio:
-#     m= 5:  B_hat = 1.2696    B+ = 79.6510
-#     m=10:  B_hat = 1.0757    B+ = 75.8823
-#     m=15:  B_hat = 1.0152    B+ = 71.0224
-#     m=20:  B_hat = 1.0135    B+ = 68.6019
-#     m=25:  B_hat = 1.0063    B+ = 62.9219
-#  I would use: B_hat  (lower mean ratio over all 25 runs: B_hat 1.0760 vs B+ 71.6159).
+#     m= 5:  B_hat = 1.1577    B+ = 78.5663
+#     m=10:  B_hat = 1.1276    B+ = 75.2877
+#     m=15:  B_hat = 1.0370    B+ = 71.1662
+#     m=20:  B_hat = 1.0118    B+ = 67.7447
+#     m=25:  B_hat = 1.0594    B+ = 64.7102
+#  I would use: B_hat  (lower mean ratio over all 25 runs: B_hat 1.0787 vs B+ 71.4950).
 ##############################################################################
 
 -- Comment / reasoning -------------------------------------------------------
@@ -190,21 +189,21 @@ reducing d to m cuts this to O(n k m), while forming E costs O(n d m).
 
 -- Average time per m --------------------------------------------------------
   m  mean time (s)  speed-up vs (a)
-  5          3.325             5.93x
- 10          2.346             8.40x
- 15          2.868             6.87x
- 20          2.932             6.72x
- 25          6.434             3.06x
+  5          2.426            10.95x
+ 10          2.254            11.79x
+ 15          2.538            10.47x
+ 20          2.794             9.51x
+ 25          3.219             8.25x
 
 ##############################################################################
 #  >>>  ANSWER (d)
 ##############################################################################
-#  Time of k-means on D (from (a)): 19.715 s
-#     m= 5: mean time(E + k-means) = 3.325 s  (5.93x vs (a))
-#     m=10: mean time(E + k-means) = 2.346 s  (8.40x vs (a))
-#     m=15: mean time(E + k-means) = 2.868 s  (6.87x vs (a))
-#     m=20: mean time(E + k-means) = 2.932 s  (6.72x vs (a))
-#     m=25: mean time(E + k-means) = 6.434 s  (3.06x vs (a))
+#  Time of k-means on D (from (a)): 26.569 s
+#     m= 5: mean time(E + k-means) = 2.426 s  (10.95x vs (a))
+#     m=10: mean time(E + k-means) = 2.254 s  (11.79x vs (a))
+#     m=15: mean time(E + k-means) = 2.538 s  (10.47x vs (a))
+#     m=20: mean time(E + k-means) = 2.794 s  (9.51x vs (a))
+#     m=25: mean time(E + k-means) = 3.219 s  (8.25x vs (a))
 ##############################################################################
 Comment: times grow with m (more dimensions to process per distance) but stay below the time on the full D. Number of Lloyd iterations also varies between runs, which adds noise.
 
@@ -218,7 +217,7 @@ What was done: 10000 random pairs (i,l) with D_i != D_l were drawn once (same pa
 (ii) For 20 independent draws of A per m: r_cost = cost_E(C_D) / cost_D(C_D), where C_D is the
      clustering from (a) and cost_X(C) = sum_j sum_{i in C_j} ||X_i - mu_j(X)||^2 with mu_j the
      cluster mean in X (computed as sum||x||^2 - ||sum x||^2/n_j, in float64).
-     cost_D(C_D) = 53618.7759
+     cost_D(C_D) = 53498.0350
 Why: JL says E||A x||^2 = ||x||^2, with ||A x||^2/||x||^2 ~ chi^2_m / m for a FIXED x, so
 a single pair has relative std sqrt(2/m). The k-means cost for a fixed partition is a sum of
 many squared distances (it equals sum_j 1/(2 n_j) sum_{i,l in C_j} ||X_i - X_l||^2), so errors of
@@ -226,18 +225,18 @@ different pairs partly cancel and its ratio should be much more concentrated.
 
 -- Summary statistics --------------------------------------------------------
   m | pairs: mean      std      IQR  sqrt(2/m) | cost: mean      std      IQR
-  5 |      0.8600   0.4296   0.6920     0.6325 |     1.0418   0.1758   0.1837
- 10 |      1.1546   0.2879   0.3971     0.4472 |     1.0154   0.1150   0.1702
- 15 |      0.8888   0.2385   0.3695     0.3651 |     0.9897   0.0732   0.0944
- 20 |      0.8302   0.1617   0.0851     0.3162 |     0.9995   0.0904   0.1461
- 25 |      1.0634   0.2254   0.3010     0.2828 |     0.9901   0.0484   0.0750
+  5 |      0.8251   0.3428   0.5836     0.6325 |     0.9913   0.1724   0.1743
+ 10 |      0.9638   0.3191   0.2942     0.4472 |     0.9899   0.0944   0.1891
+ 15 |      1.2891   0.3986   0.7404     0.3651 |     1.0023   0.1053   0.1470
+ 20 |      0.9847   0.2634   0.3554     0.3162 |     1.0072   0.0607   0.0951
+ 25 |      0.8194   0.1938   0.2026     0.2828 |     0.9846   0.0688   0.0600
 
 ##############################################################################
 #  >>>  ANSWER (e)
 ##############################################################################
 #  Smaller spread: the cost ratio r_cost (ii)  (std smaller than the pairwise ratio's std for 5 of 5 values of m).
-#  Change with m: std of pair ratio 0.4296 (m=5) -> 0.2254 (m=25), close to sqrt(2/m) = 0.6325 -> 0.2828.
-#                  std of cost ratio 0.1758 (m=5) -> 0.0484 (m=25).
+#  Change with m: std of pair ratio 0.3428 (m=5) -> 0.1938 (m=25), close to sqrt(2/m) = 0.6325 -> 0.2828.
+#                  std of cost ratio 0.1724 (m=5) -> 0.0688 (m=25).
 #  Both are centred near 1 (JL is unbiased) and both shrink as m grows.
 ##############################################################################
 
@@ -252,5 +251,5 @@ different pairs partly cancel and its ratio should be much more concentrated.
 
 ==============================================================================
 Files produced: q1_graphs/q1b_ratio.png, q1c_compare.png, q1d_time.png, q1e_boxplot.png
-Reproducibility: all draws use numpy Generators seeded from SEED=558; KMeans random_state is fixed.
+Reproducibility: all draws use numpy Generators seeded from SEED=160705; KMeans random_state is fixed.
 (Wall-clock times naturally vary a little between machines/runs.)
