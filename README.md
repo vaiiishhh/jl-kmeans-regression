@@ -250,6 +250,14 @@ For the full dataset, we choose **CountSketch for speed and memory**, while chec
 
 Individual trials and summaries for Q2 are saved in `question2_results/`.
 
+---
+
+## References
+
+- https://web.stanford.edu/class/cs114/readings/JL-Johnson.pdf
+- https://aseemrb.me/blog/johnson-lindenstrauss-lemma/
+- https://stackoverflow.com/questions/6811351/explaining-the-count-sketch-algorithm
+- https://www.cse.wustl.edu/~bjuba/cse5401/homeworks/hw7.pdf
 
 ---
 
